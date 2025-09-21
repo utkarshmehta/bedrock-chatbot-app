@@ -282,7 +282,7 @@ Resources:
   StreamlitAutoScalingRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Join ['-', [StreamlitScalingRole, !Ref EnvironmentName]]
+      RoleName: !Join ['-', ['StreamlitScalingRole', !Ref EnvironmentName]]
       AssumeRolePolicyDocument:
         Statement:
           - Effect: Allow

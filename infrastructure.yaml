@@ -20,16 +20,6 @@ Parameters:
   PrivateSubnetAcidr:
     Description: Please enter the IP range (CIDR notation) for the private subnet in the first Availability Zone
     Type: String
-    Default: 10.0.2.0/24
-
-  PrivateSubnetBcidr:
-    Description: Please enter the IP range (CIDR notation) for the private subnet in the second Availability Zone
-    Type: String
-    Default: 10.0.3.0/24
-  
-  PrivateSubnetAcidr:
-    Description: Please enter the IP range (CIDR notation) for the private subnet in the first Availability Zone
-    Type: String
     Default: 10.0.4.0/24
   
   PrivateSubnetBcidr:
@@ -65,7 +55,6 @@ Resources:
   LogsPolicy:
     Type: "AWS::IAM::ManagedPolicy"
     Properties:
-      ManagedPolicyName: 'LogsPolicy'
       Path: /
       ManagedPolicyName: !Sub "LogsPolicy${EnvironmentName}"
       PolicyDocument:
@@ -106,9 +95,7 @@ Resources:
             Principal:
               Service: logging.s3.amazonaws.com
             Resource: 
-              - !Sub arn:aws:s3:::${LoggingBucket}/*       
-
-  # VPC
+              - !Sub arn:aws:s3:::${LoggingBucket}/* # VPC
   VPC:
     Type: AWS::EC2::VPC
     Properties:
@@ -366,7 +353,6 @@ Resources:
   StreamlitECSRoleCustomResourceRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Join ['-', ['ECSCustomRole', !Sub '${AWS::StackName}']]
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:

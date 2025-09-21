@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Codepipeline for Streamlit App
+Description: Codepipeline for Streamlit App (GitHub Version)
 
 Metadata:
   'AWS::CloudFormation::Interface':
@@ -7,21 +7,26 @@ Metadata:
     - Label:
         default: 'Environment Configuration'
       Parameters:
-      - CodeCommitURL
+      - GitHubUsername
       - RepoName
+      - GitHubConnectionArn
       - EnvironmentName
       - DeployVPCInfrastructure
 
 Parameters:
-  CodeCommitURL:
+  GitHubUsername:
     Type: String
-    Description: Code Commit repository link
-    Default: ""
-    
+    Description: Your GitHub username (e.g., utkarshmehta)
+  
   RepoName:
     Type: String
-    Description: Code Commit repository name
-    Default: ""
+    Description: The name of your GitHub repository (e.g., bedrock-chatbot-app)
+    Default: bedrock-chatbot-app
+
+  GitHubConnectionArn:
+    Type: String
+    Description: The ARN of the AWS CodeStar connection to GitHub
+    Default: "arn:aws:codeconnections:us-east-1:211395677253:connection/d3aa05f4-e7fc-4405-8735-bc20112d8c36"
 
   EnvironmentName:
     Description: (containing letters or numbers) Unique name to distinguish different web application in the same AWS account- min length 1 and max length 4
@@ -81,7 +86,7 @@ Resources:
       PolicyDocument:
         Version: 2012-10-17
         Statement:
-          -
+          - 
             Sid: DenyUnEncryptedObjectUploads
             Effect: Deny
             Principal: '*'
@@ -90,7 +95,7 @@ Resources:
             Condition:
               StringNotEquals: 
                 s3:x-amz-server-side-encryption: aws:kms
-          -
+          - 
             Sid: DenyInsecureConnections
             Effect: Deny
             Principal: '*'
@@ -176,21 +181,14 @@ Resources:
                 Action:
                   - 'sts:GetCallerIdentity'
                 Resource: '*'
-              - Effect: 'Allow'
-                Action:
-                  - 'codecommit:GetBranch'
-                  - 'codecommit:GetCommit'
-                  - 'codecommit:GetRepository'
-                  - 'codecommit:GitPull'
-                Resource: '*'
 
   StreamlitInitCodebuild:
     Type: AWS::CodeBuild::Project
     Properties:
       Name: !Join ['-', ['StreamlitInitCodebuild', !Ref EnvironmentName]]
       Source:
-        Type: CODECOMMIT
-        Location: !Ref CodeCommitURL
+        Type: GITHUB
+        Location: !Sub "https://github.com/${GitHubUsername}/${RepoName}.git"
         BuildSpec: 
           !Sub
             - |
@@ -211,7 +209,6 @@ Resources:
             - { 
                 StreamlitCodeS3Bucket: !Ref StreamlitCodeS3Bucket
               }
-      # SourceVersion: branch
       Environment:
         Type: LINUX_CONTAINER
         Image: aws/codebuild/amazonlinux2-x86_64-standard:5.0
@@ -292,8 +289,6 @@ Resources:
                         sleep(15)
                       if status in ['FAILED', 'STOPPED', 'FAULT', 'TIMED_OUT']:
                         print("Initial CodeBuild failed")
-                        # build_id = codebuild.start_build(projectName=event['ResourceProperties']['CLEANPROJECT'])['build']['id']
-                        # sleep(120)
                         cfnresponse.send(event, context, cfnresponse.FAILED, {})
                         return
                     elif request_type == 'Delete':
@@ -303,8 +298,6 @@ Resources:
 
                   except Exception as ex:
                     print(ex)
-                    # build_id = codebuild.start_build(projectName=event['ResourceProperties']['CLEANPROJECT'])['build']['id']
-                    # sleep(120)
                     bucket = boto3.resource("s3").Bucket(event['ResourceProperties']['CODEBUCKET'])
                     bucket.object_versions.delete()
                     bucket.objects.all().delete()
@@ -362,13 +355,6 @@ Resources:
                   - "s3:PutObject"
                 Resource:
                   - !Sub "arn:aws:s3:::${StreamlitArtifactStore}/*"
-              - Effect: 'Allow'
-                Action:
-                  - 'codecommit:GetBranch'
-                  - 'codecommit:GetCommit'
-                  - 'codecommit:GetRepository'
-                  - 'codecommit:GitPull'
-                Resource: '*'
   
   StreamlitCodePipelineServiceRole:
     Type: AWS::IAM::Role
@@ -377,52 +363,52 @@ Resources:
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
-          -
+          - 
             Effect: Allow
             Principal:
               Service:
                 - codepipeline.amazonaws.com
             Action: sts:AssumeRole
-      Path: /
+      Path: "/"
       Policies:
-        -
+        - 
           PolicyName: AWS-CodePipeline-Service-3
           PolicyDocument:
             Version: 2012-10-17
             Statement:
-              -
+              - 
                 Effect: Allow
                 Action:
                   - codebuild:BatchGetBuilds
                   - codebuild:StartBuild
                 Resource: !GetAtt StreamlitCodeBuild.Arn
-              -
+              - 
                 Effect: Allow
                 Action:
-                  - lambda:InvokeFunction
-                  - lambda:ListFunctions
+                  - 'lambda:InvokeFunction'
+                  - 'lambda:ListFunctions'
                 Resource: !GetAtt InvalidateCacheFunction.Arn
-              -
+              - 
                 Effect: Allow
                 Action:
-                  - iam:PassRole
+                  - 'iam:PassRole'
                 Resource: !GetAtt StreamlitCloudformationExecutionRole.Arn
-              -
+              - 
                 Effect: Allow
                 Action:
-                  - cloudformation:UpdateStack
-                  - cloudformation:DescribeStacks
-                  - cloudformation:CreateStack
+                  - 'cloudformation:UpdateStack'
+                  - 'cloudformation:DescribeStacks'
+                  - 'cloudformation:CreateStack'
                 Resource: !Sub 
-                          - |-
+                          - |- 
                             arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${StackName}/*
-                          - {
+                          - { 
                               StackName: !Join ['', [!Sub '${AWS::StackName}', 'deploy', !Ref EnvironmentName]]
                             }
-              -
+              - 
                 Effect: Allow
                 Action:
-                  - s3:*
+                  - 's3:*'
                 Resource:
                   - !Sub arn:aws:s3:::${StreamlitCodeS3Bucket}/*
                   - !Sub arn:aws:s3:::${StreamlitCodeS3Bucket}
@@ -430,12 +416,8 @@ Resources:
                   - !Sub arn:aws:s3:::${StreamlitArtifactStore}
               - Effect: 'Allow'
                 Action:
-                  - 'codecommit:CancelUploadArchive'
-                  - 'codecommit:GetBranch'
-                  - 'codecommit:GetCommit'
-                  - 'codecommit:GetUploadArchiveStatus'
-                  - 'codecommit:UploadArchive'
-                Resource: '*'
+                  - 'codestar-connections:UseConnection'
+                Resource: !Ref GitHubConnectionArn
   
   StreamlitCloudformationExecutionRole:
     DeletionPolicy: Retain
@@ -489,7 +471,7 @@ Resources:
                 Resource:
                   - '*'
               - Effect: 'Allow'
-                Action:                  
+                Action:
                   - 'ecs:DescribeClusters'
                   - 'ecs:DescribeServices'
                   - 'ecs:CreateService'
@@ -538,7 +520,7 @@ Resources:
                 Resource: 
                   - !Sub arn:aws:application-autoscaling:${AWS::Region}:${AWS::AccountId}:scalable-target/*
               - Effect: 'Allow'
-                Action:              
+                Action:
                   - 'application-autoscaling:PutScalingPolicy'
                   - 'application-autoscaling:DeleteScalingPolicy'
                 Resource:
@@ -555,14 +537,14 @@ Resources:
                 Resource:
                   - '*'
               - Effect: 'Allow'
-                Action:                  
+                Action:
                   - 'wafv2:GetWebACL'
                   - 'wafv2:DeleteWebACL'
                   - 'wafv2:ListTagsForResource'
                 Resource:
                   - !Sub arn:aws:wafv2:${AWS::Region}:${AWS::AccountId}:*/webacl/CloudFrontWebACL${EnvironmentName}/*     
               - Effect: 'Allow'
-                Action:                  
+                Action:
                   - 'ec2:CreateSecurityGroup'
                   - 'ec2:DescribeSecurityGroups'
                   - 'ec2:CreateTags'
@@ -573,7 +555,7 @@ Resources:
                 Resource:
                   - "*"        
               - Effect: 'Allow'
-                Action:                  
+                Action:
                   - 'ec2:DeleteSecurityGroup'
                   - 'ec2:AuthorizeSecurityGroupIngress'
                   - 'ec2:DescribeVpcs'
@@ -581,21 +563,21 @@ Resources:
                   - 'ec2:DescribeAccountAttributes'
                   - 'ec2:DescribeSubnets'
                 Resource:
-                  - "*"
+                  - ""
                 Condition:
                   StringEquals:
                     'aws:ResourceTag/aws:cloudformation:logical-id': 'StreamlitALBSecurityGroup'
               - Effect: 'Allow'
-                Action:                  
+                Action:
                   - 'ec2:DeleteSecurityGroup'
                   - 'ec2:AuthorizeSecurityGroupIngress'
                 Resource:
-                  - "*"
+                  - ""
                 Condition:                 
                   StringEquals:
                     'aws:ResourceTag/aws:cloudformation:logical-id': 'StreamlitContainerSecurityGroup'
               - Effect: 'Allow'
-                Action:                  
+                Action:
                   - 'elasticloadbalancing:DeleteLoadBalancer'
                   - 'elasticloadbalancing:DeleteListener'
                   - 'elasticloadbalancing:DeleteRule'
@@ -606,7 +588,7 @@ Resources:
                   - !Sub arn:aws:elasticloadbalancing:${AWS::Region}:${AWS::AccountId}:listener/app/StreamlitALB-${EnvironmentName}/*/*
                   - !Sub arn:aws:elasticloadbalancing:${AWS::Region}:${AWS::AccountId}:listener-rule/app/StreamlitALB-${EnvironmentName}/*/*/*
               - Effect: 'Allow'
-                Action:                  
+                Action:
                   - 'elasticloadbalancing:CreateLoadBalancer'
                   - 'elasticloadbalancing:CreateListener'
                   - 'elasticloadbalancing:CreateRule'
@@ -798,12 +780,12 @@ Resources:
             ActionTypeId:
               Category: Source
               Owner: AWS
-              Provider: CodeCommit
+              Provider: CodeStarSourceConnection
               Version: 1
             Configuration:
-              RepositoryName: !Ref RepoName
-              BranchName: master
-              PollForSourceChanges: false
+              ConnectionArn: !Ref GitHubConnectionArn
+              FullRepositoryId: !Sub ${GitHubUsername}/${RepoName}
+              BranchName: main
             RunOrder: 1
             OutputArtifacts:
               - Name: source-output-artifacts
@@ -894,12 +876,12 @@ Resources:
             ActionTypeId:
               Category: Source
               Owner: AWS
-              Provider: CodeCommit
+              Provider: CodeStarSourceConnection
               Version: 1
             Configuration:
-              RepositoryName: !Ref RepoName
-              BranchName: master
-              PollForSourceChanges: false
+              ConnectionArn: !Ref GitHubConnectionArn
+              FullRepositoryId: !Sub ${GitHubUsername}/${RepoName}
+              BranchName: main
             RunOrder: 1
             OutputArtifacts:
               - Name: source-output-artifacts              
@@ -970,56 +952,6 @@ Resources:
             Configuration:
               FunctionName: !Ref InvalidateCacheFunction
             RunOrder: 1             
-
-  # CloudWatch
-  StreamlitCloudWatchEventRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Join ['-', ['CloudWatchEventRole', !Ref EnvironmentName]]
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          -
-            Effect: Allow
-            Principal:
-              Service:
-                - events.amazonaws.com
-            Action: sts:AssumeRole
-      Path: /
-      Policies:
-        -
-          PolicyName: cwe-pipeline-execution
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              -
-                Effect: Allow
-                Action: codepipeline:StartPipelineExecution
-                Resource: !Join [ '', [ 'arn:aws:codepipeline:', !Ref 'AWS::Region', ':', !Ref 'AWS::AccountId', ':', !Join ['-', ['StreamlitCodePipeLine', !Ref EnvironmentName]]] ]
-            
-  AmazonCloudWatchEventRule:
-      Type: AWS::Events::Rule
-      Properties:
-        Name: !Join ['-', ['StreamlitEventRule', !Ref EnvironmentName]]
-        EventPattern:
-          source:
-            - aws.codecommit
-          detail-type:
-            - 'CodeCommit Repository State Change'
-          detail:
-            event:
-              - referenceCreated
-              - referenceUpdated
-            referenceType:
-              - branch
-            referenceName:
-              - master
-        Targets:
-          -
-            Arn:
-              !Join [ '', [ 'arn:aws:codepipeline:', !Ref 'AWS::Region', ':', !Ref 'AWS::AccountId', ':',  !Join ['-', ['StreamlitCodePipeLine', !Ref EnvironmentName]]]]
-            RoleArn: !GetAtt StreamlitCloudWatchEventRole.Arn
-            Id: codepipeline-AppPipeline
 
 Outputs:
   StreamlitCodeS3Bucket:

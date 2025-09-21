@@ -26,7 +26,6 @@ Parameters:
   GitHubConnectionArn:
     Type: String
     Description: The ARN of the AWS CodeStar connection to GitHub
-    Default: "arn:aws:codeconnections:us-east-1:211395677253:connection/d3aa05f4-e7fc-4405-8735-bc20112d8c36"
 
   EnvironmentName:
     Description: (containing letters or numbers) Unique name to distinguish different web application in the same AWS account- min length 1 and max length 4
@@ -312,8 +311,6 @@ Resources:
       PROJECT: !Ref StreamlitInitCodebuild
       CODEBUCKET: !Ref StreamlitCodeS3Bucket
 
-      
-
   # CodePipeline Roles
   StreamlitCodeBuildExecutionRole:
     Type: 'AWS::IAM::Role'
@@ -542,7 +539,8 @@ Resources:
                   - 'wafv2:DeleteWebACL'
                   - 'wafv2:ListTagsForResource'
                 Resource:
-                  - !Sub arn:aws:wafv2:${AWS::Region}:${AWS::AccountId}:*/webacl/CloudFrontWebACL${EnvironmentName}/* - Effect: 'Allow'
+                  - !Sub arn:aws:wafv2:${AWS::Region}:${AWS::AccountId}:*/webacl/CloudFrontWebACL${EnvironmentName}/*
+              - Effect: 'Allow'
                 Action:
                   - 'ec2:CreateSecurityGroup'
                   - 'ec2:DescribeSecurityGroups'

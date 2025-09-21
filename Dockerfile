@@ -1,14 +1,6 @@
-FROM public.ecr.aws/docker/library/python:3.9-slim
+FROM public.ecr.aws/docker/library/python:3.9-slim-bullseye
 
 WORKDIR /frontend
-
-# Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    curl \
-    software-properties-common \
-    git \
-    && rm -rf /var/lib/apt/lists/*
 
 # Copy and install Python requirements first to leverage Docker caching
 COPY requirements.txt .

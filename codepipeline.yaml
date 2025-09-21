@@ -200,6 +200,7 @@ Resources:
                   commands:
                     - echo Build started on `date`
                     - aws s3 cp infrastructure.yaml s3://${StreamlitCodeS3Bucket}
+                    - aws s3 cp deploy.yaml s3://${StreamlitCodeS3Bucket}
                     - zip -r app.zip .
                 post_build:
                   commands:
@@ -311,6 +312,8 @@ Resources:
       PROJECT: !Ref StreamlitInitCodebuild
       CODEBUCKET: !Ref StreamlitCodeS3Bucket
 
+      
+
   # CodePipeline Roles
   StreamlitCodeBuildExecutionRole:
     Type: 'AWS::IAM::Role'
@@ -339,11 +342,13 @@ Resources:
                   - '*'
               - Effect: 'Allow'
                 Action:
-                  - 'ecr:UploadLayerPart'
+                  - 'ecr:GetDownloadUrlForLayer'
+                  - 'ecr:BatchGetImage'
+                  - 'ecr:BatchCheckLayerAvailability'
                   - 'ecr:PutImage'
                   - 'ecr:InitiateLayerUpload'
+                  - 'ecr:UploadLayerPart'
                   - 'ecr:CompleteLayerUpload'
-                  - 'ecr:BatchCheckLayerAvailability'
                 Resource:
                   - !GetAtt StreamlitImageRepo.Arn
               - Effect: 'Allow'

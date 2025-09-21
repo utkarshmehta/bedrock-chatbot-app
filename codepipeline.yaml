@@ -542,8 +542,7 @@ Resources:
                   - 'wafv2:DeleteWebACL'
                   - 'wafv2:ListTagsForResource'
                 Resource:
-                  - !Sub arn:aws:wafv2:${AWS::Region}:${AWS::AccountId}:*/webacl/CloudFrontWebACL${EnvironmentName}/*     
-              - Effect: 'Allow'
+                  - !Sub arn:aws:wafv2:${AWS::Region}:${AWS::AccountId}:*/webacl/CloudFrontWebACL${EnvironmentName}/* - Effect: 'Allow'
                 Action:
                   - 'ec2:CreateSecurityGroup'
                   - 'ec2:DescribeSecurityGroups'
@@ -562,8 +561,7 @@ Resources:
                   - 'ec2:DescribeInternetGateways'
                   - 'ec2:DescribeAccountAttributes'
                   - 'ec2:DescribeSubnets'
-                Resource:
-                  - ""
+                Resource: "*"
                 Condition:
                   StringEquals:
                     'aws:ResourceTag/aws:cloudformation:logical-id': 'StreamlitALBSecurityGroup'
@@ -571,8 +569,7 @@ Resources:
                 Action:
                   - 'ec2:DeleteSecurityGroup'
                   - 'ec2:AuthorizeSecurityGroupIngress'
-                Resource:
-                  - ""
+                Resource: "*"
                 Condition:                 
                   StringEquals:
                     'aws:ResourceTag/aws:cloudformation:logical-id': 'StreamlitContainerSecurityGroup'

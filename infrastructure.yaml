@@ -95,7 +95,8 @@ Resources:
             Principal:
               Service: logging.s3.amazonaws.com
             Resource: 
-              - !Sub arn:aws:s3:::${LoggingBucket}/* # VPC
+              - !Sub arn:aws:s3:::${LoggingBucket}/*
+  # VPC
   VPC:
     Type: AWS::EC2::VPC
     Properties:
@@ -386,7 +387,6 @@ Resources:
   StreamlitECSRoleCustomResourceFunction:
     Type: "AWS::Lambda::Function"
     Properties:
-      FunctionName: !Join ['-', ['ECSCustomF', !Sub '${AWS::StackName}']]
       Handler: index.handler
       Role: !GetAtt StreamlitECSRoleCustomResourceRole.Arn
       Timeout: 300

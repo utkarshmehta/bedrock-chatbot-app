@@ -547,6 +547,12 @@ Resources:
                   - !Sub arn:aws:wafv2:${AWS::Region}:${AWS::AccountId}:*/webacl/CloudFrontWebACL${EnvironmentName}/*
               - Effect: 'Allow'
                 Action:
+                  # Permissions for creating and managing security groups
+                  - 'ec2:CreateSecurityGroup'
+                  - 'ec2:DeleteSecurityGroup'
+                  - 'ec2:AuthorizeSecurityGroupIngress'
+                  - 'ec2:RevokeSecurityGroupIngress'
+                  # Permissions for describing the VPC environment (from our last fix)
                   - 'ec2:DescribeSecurityGroups'
                   - 'ec2:DescribeSubnets'
                   - 'ec2:DescribeVpcs'
@@ -907,7 +913,7 @@ Resources:
                       PubSubnetB: !If [IsDeployVPCInfrastructure, !GetAtt Infrastructure.Outputs.PublicSubnetB, !ImportValue Basic-PublicSubnetB],
                       PvtSubnetA: !If [IsDeployVPCInfrastructure, !GetAtt Infrastructure.Outputs.PrivateSubnetA, !ImportValue Basic-PrivateSubnetA],
                       PvtSubnetB: !If [IsDeployVPCInfrastructure, !GetAtt Infrastructure.Outputs.PrivateSubnetB, !ImportValue Basic-PrivateSubnetB],
-                      LoggingBucketName: !If [IsDeployVPCInfrastructure, !GetAtt Infrastructure.Outputs.LoggingBucket, !ImportValue Basic-LoggingBucket],
+                      LoggingBucketName: !If [IsDeployVPCInfrastructure, !GetAtt Infrastructure.Outputs.LoggingBucket, !importvalue Basic-LoggingBucket],
                       VPC: !If [IsDeployVPCInfrastructure, !GetAtt Infrastructure.Outputs.VPC, !ImportValue Basic-VPC]
                    }
               RoleArn: 
@@ -932,4 +938,4 @@ Resources:
 Outputs:
   StreamlitCodeS3Bucket:
     Value: !Ref StreamlitCodeS3Bucket
-    Description: Name of code S3 bucket for CodePipeline 
+    Description: Name of code S3 bucket

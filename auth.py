@@ -42,9 +42,10 @@ def authenticate(app_function):
     with col2:
         if not st.session_state["authentication_status"]:
             try:
+                # THIS IS THE CORRECTED LINE
                 (email_of_registered_user,
                  username_of_registered_user,
-                 name_of_registered_user) = authenticator.register_user(pre_authorization=False)
+                 name_of_registered_user) = authenticator.register_user()
                 if email_of_registered_user:
                     st.success('User registered successfully')
             except RegisterError as e:

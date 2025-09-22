@@ -546,7 +546,11 @@ Resources:
                 Resource:
                   - !Sub arn:aws:wafv2:${AWS::Region}:${AWS::AccountId}:*/webacl/CloudFrontWebACL${EnvironmentName}/*
               - Effect: 'Allow'
-                Action: "ec2:*"
+                Action:
+                  - 'ec2:DescribeSecurityGroups'
+                  - 'ec2:DescribeSubnets'
+                  - 'ec2:DescribeVpcs'
+                  - 'ec2:GetSecurityGroupsForVpc'
                 Resource: "*"
               - Effect: 'Allow'
                 Action:

@@ -283,7 +283,7 @@ Resources:
                     if request_type == 'Create':
                       status = 'STARTING'
                       
-                      build_id = codebuild.start_build(projectName=event['ResourceProperties']['PROJECT'])['build']['id']
+                      build_.id = codebuild.start_build(projectName=event['ResourceProperties']['PROJECT'])['build']['id']
                       while status not in ['SUCCEEDED', 'FAILED', 'STOPPED', 'FAULT', 'TIMED_OUT']:
                         status = codebuild.batch_get_builds(ids=[build_id])['builds'][0]['buildStatus']
                         sleep(15)
@@ -913,7 +913,7 @@ Resources:
                       PubSubnetB: !If [IsDeployVPCInfrastructure, !GetAtt Infrastructure.Outputs.PublicSubnetB, !ImportValue Basic-PublicSubnetB],
                       PvtSubnetA: !If [IsDeployVPCInfrastructure, !GetAtt Infrastructure.Outputs.PrivateSubnetA, !ImportValue Basic-PrivateSubnetA],
                       PvtSubnetB: !If [IsDeployVPCInfrastructure, !GetAtt Infrastructure.Outputs.PrivateSubnetB, !ImportValue Basic-PrivateSubnetB],
-                      LoggingBucketName: !If [IsDeployVPCInfrastructure, !GetAtt Infrastructure.Outputs.LoggingBucket, !importvalue Basic-LoggingBucket],
+                      LoggingBucketName: !If [IsDeployVPCInfrastructure, !GetAtt Infrastructure.Outputs.LoggingBucket, !ImportValue Basic-LoggingBucket],
                       VPC: !If [IsDeployVPCInfrastructure, !GetAtt Infrastructure.Outputs.VPC, !ImportValue Basic-VPC]
                    }
               RoleArn: 

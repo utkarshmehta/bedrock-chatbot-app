@@ -932,4 +932,4 @@ Resources:
 Outputs:
   StreamlitCodeS3Bucket:
     Value: !Ref StreamlitCodeS3Bucket
-    Description: Name of code S3 bucket for CodePipeline
+    Description: Name of code S3 bucket for CodePipeline 

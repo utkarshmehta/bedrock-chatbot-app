@@ -35,7 +35,8 @@ class BedrockAgent:
     def __init__(self, environmentName, agent_id, agent_alias_id) -> None:
         if "BEDROCK_RUNTIME_CLIENT" not in st.session_state:
             st.session_state["BEDROCK_RUNTIME_CLIENT"] = Session().client(
-                "bedrock-agent-runtime", config=Config(read_timeout=600)
+                "bedrock-agent-runtime", config=Config(read_timeout=600),
+                region_name="us-east-1",
             )
 
         if "SESSION_ID" not in st.session_state:

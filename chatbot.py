@@ -191,10 +191,23 @@ def run_app():
     # Enhanced input area
     input_placeholder = "🚨 Describe your incident (e.g., 'Database timeout errors in production')"
     
-    # Use demo query if set
+    # Show demo query in a text area if available, then use chat input
     if hasattr(st.session_state, 'demo_query'):
-        prompt = st.chat_input(input_placeholder, value=st.session_state.demo_query)
-        del st.session_state.demo_query
+        st.markdown("**📋 Selected Scenario:**")
+        demo_text = st.text_area("", value=st.session_state.demo_query, height=100)
+        col1, col2 = st.columns([1, 4])
+        with col1:
+            if st.button("🚀 Analyze This Incident", type="primary"):
+                prompt = demo_text
+            else:
+                prompt = None
+        with col2:
+            if st.button("❌ Clear Scenario"):
+                del st.session_state.demo_query
+                st.rerun()
+        
+        if 'demo_query' in st.session_state and prompt is None:
+            prompt = st.chat_input(input_placeholder)
     else:
         prompt = st.chat_input(input_placeholder)
 

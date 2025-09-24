@@ -8,7 +8,7 @@
 
 - **Scalable and Reliable Hosting**: The Streamlit application is hosted on Amazon ECS (Elastic Container Service) Fargate, providing excellent scalability and reliability. Your application can automatically scale based on demand, ensuring optimal performance and availability.
 
-- **CI/CD Pipeline Integration**: The project seamlessly integrates with AWS CodeCommit repository, enabling a robust CI/CD pipeline. Whenever you update the code in the CodeCommit repository, the project automatically triggers a rebuild and deployment process, ensuring your application is always up to date with the latest changes. 
+- **CI/CD Pipeline Integration**: The project seamlessly integrates with GitHub repository, enabling a robust CI/CD pipeline. Whenever you update the code in the GitHub repository, the project automatically triggers a rebuild and deployment process, ensuring your application is always up to date with the latest changes. 
 
 ## Prerequisites
 - Have an AWS account and have access to AWS regions that support Amazon Bedrock Agents. [link](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-supported.html) 
@@ -19,13 +19,13 @@ Follow these steps to set up and deploy the project using AWS CodeCommit and Clo
 
 1. Clone the repository to your local machine:
    ```
-   git clone https://github.com/yhou-uk/streamlit-app-for-amazon-bedrock.git
+   git clone 
    ```
 
-2. Create a new repository in AWS CodeCommit:
-   - Open the AWS Management Console and navigate to the CodeCommit service.
+2. Create a new repository in GitHub:
+   - Open the Github.
    - Click on "Create repository" and provide a name for your repository.
-   - Upload the cloned repository to your new CodeCommit repository.
+   - Upload the cloned repository to your new Github repository.
 
 3. Open the AWS Management Console and navigate to the CloudFormation service.
 

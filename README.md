@@ -79,7 +79,7 @@ Note: Deleting the stacks will permanently remove all the associated resources. 
 
 ## Video demo
 
-![Demo](assets/chatbot-demo.gif)
+
 
 ## New Feature: Access Control Page 
 
@@ -90,7 +90,7 @@ You can register new users from two locations:
 
 The Streamlit authentication capability is provided by this [solution](https://github.com/mkhorasani/Streamlit-Authenticator/tree/main).
 
-![authentcation](assets/authentication.png)
+
 
 
 ## Acknowledgements

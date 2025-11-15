@@ -93,13 +93,4 @@ The Streamlit authentication capability is provided by this [solution](https://g
 
 
 
-## Acknowledgements
-   This project is based on the excellent work done in the [Customer relationship management (CRM) Bedrock Agent](https://github.com/aws-samples/amazon-bedrock-samples/tree/function_calling/agents/customer-relationship-management-agent). We would like to express our sincere appreciation to the authors and contributors of that repository for their effort and inspiration.
 
-## Security
-
-See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
-
-## License
-
-This library is licensed under the MIT-0 License. See the LICENSE file.
